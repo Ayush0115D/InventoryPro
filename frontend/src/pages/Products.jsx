@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { fetchProducts, createProduct, updateProduct, deleteProduct } from '../api'
+import { useToast } from '../components/Toast'
 import { BoxIcon, PlusIcon, EditIcon, TrashIcon, CloseIcon, SearchIcon } from '../components/Icons'
 
 const emptyForm = { name: '', sku: '', price: '', quantity: '' }
@@ -10,6 +11,8 @@ export default function Products() {
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState(emptyForm)
   const [error, setError] = useState('')
+  const [search, setSearch] = useState('')
+  const toast = useToast()
 
   useEffect(() => { loadProducts() }, [])
 
@@ -21,6 +24,10 @@ export default function Products() {
       setError(err.message)
     }
   }
+
+  const filtered = products.filter(p =>
+    !search || p.name.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase())
+  )
 
   function openAdd() {
     setForm(emptyForm)
@@ -51,8 +58,10 @@ export default function Products() {
       }
       if (editing) {
         await updateProduct(editing, payload)
+        toast('Product updated successfully')
       } else {
         await createProduct(payload)
+        toast('Product created successfully')
       }
       setShowForm(false)
       setEditing(null)
@@ -62,8 +71,8 @@ export default function Products() {
     }
   }
 
-  async function handleDelete(id) {
-    if (!confirm('Delete this product?')) return
+  async function handleDelete(id, name) {
+    toast(`"${name}" deleted`, 'error')
     try {
       await deleteProduct(id)
       await loadProducts()
@@ -118,19 +127,29 @@ export default function Products() {
                 <input name="quantity" type="number" placeholder="0" value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} required className="input-field w-full" />
               </div>
               <div className="lg:col-span-1 flex items-end gap-2">
-                <button type="submit" className="btn-success flex-1">
-                  {editing ? 'Update' : 'Save'}
-                </button>
-                <button type="button" onClick={() => setShowForm(false)} className="btn-secondary flex-none">
-                  <CloseIcon />
-                </button>
+                <button type="submit" className="btn-success flex-1">{editing ? 'Update' : 'Save'}</button>
+                <button type="button" onClick={() => setShowForm(false)} className="btn-secondary flex-none"><CloseIcon /></button>
               </div>
             </div>
           </form>
         </div>
       )}
 
-      {products.length > 0 ? (
+      {products.length > 0 && (
+        <div className="relative mb-4">
+          <div className="absolute inset-y-0 left-4 flex items-center text-gray-500">
+            <SearchIcon />
+          </div>
+          <input
+            placeholder="Search products by name or SKU..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="input-field w-full pl-11"
+          />
+        </div>
+      )}
+
+      {filtered.length > 0 ? (
         <div className="rounded-2xl border border-white/5 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left">
@@ -144,27 +163,19 @@ export default function Products() {
                 </tr>
               </thead>
               <tbody>
-                {products.map((p, i) => (
+                {filtered.map((p, i) => (
                   <tr key={p.id} className={`border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors ${i % 2 === 0 ? 'bg-white/[0.01]' : ''}`}>
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-amber-500/5 border border-amber-500/10 flex items-center justify-center text-amber-400/50">
-                          <BoxIcon />
-                        </div>
+                        <div className="w-9 h-9 rounded-xl bg-amber-500/5 border border-amber-500/10 flex items-center justify-center text-amber-400/50"><BoxIcon /></div>
                         <span className="text-gray-200 font-medium">{p.name}</span>
                       </div>
                     </td>
-                    <td className="py-4 px-6">
-                      <span className="font-mono text-xs text-gray-500 bg-white/5 px-2.5 py-1 rounded-lg">{p.sku}</span>
-                    </td>
+                    <td className="py-4 px-6"><span className="font-mono text-xs text-gray-500 bg-white/5 px-2.5 py-1 rounded-lg">{p.sku}</span></td>
                     <td className="py-4 px-6 text-amber-400 font-medium">${p.price.toFixed(2)}</td>
                     <td className="py-4 px-6">
                       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold ${
-                        p.quantity < 10
-                          ? 'bg-red-500/10 text-red-400 border border-red-500/10'
-                          : p.quantity < 50
-                            ? 'bg-amber-500/10 text-amber-400 border border-amber-500/10'
-                            : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/10'
+                        p.quantity < 10 ? 'bg-red-500/10 text-red-400 border border-red-500/10' : p.quantity < 50 ? 'bg-amber-500/10 text-amber-400 border border-amber-500/10' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/10'
                       }`}>
                         <span className={`w-1.5 h-1.5 rounded-full ${p.quantity < 10 ? 'bg-red-400' : p.quantity < 50 ? 'bg-amber-400' : 'bg-emerald-400'}`} />
                         {p.quantity}
@@ -172,12 +183,8 @@ export default function Products() {
                     </td>
                     <td className="py-4 px-6 text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <button onClick={() => openEdit(p)} className="p-2 rounded-lg text-gray-500 hover:text-amber-400 hover:bg-amber-500/10 transition-all" title="Edit">
-                          <EditIcon />
-                        </button>
-                        <button onClick={() => handleDelete(p.id)} className="p-2 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-all" title="Delete">
-                          <TrashIcon />
-                        </button>
+                        <button onClick={() => openEdit(p)} className="p-2 rounded-lg text-gray-500 hover:text-amber-400 hover:bg-amber-500/10 transition-all" title="Edit"><EditIcon /></button>
+                        <button onClick={() => handleDelete(p.id, p.name)} className="p-2 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-all" title="Delete"><TrashIcon /></button>
                       </div>
                     </td>
                   </tr>
@@ -186,16 +193,16 @@ export default function Products() {
             </table>
           </div>
         </div>
+      ) : products.length > 0 ? (
+        <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-10 text-center">
+          <p className="text-gray-500">No products match "{search}"</p>
+        </div>
       ) : (
         <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-16 text-center">
-          <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-5">
-            <div className="text-gray-500"><BoxIcon /></div>
-          </div>
+          <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-5"><div className="text-gray-500"><BoxIcon /></div></div>
           <h3 className="text-xl text-gray-400 font-medium mb-2">No products yet</h3>
-          <p className="text-gray-600 text-sm mb-6">Your product catalog is empty. Start by adding your first product.</p>
-          <button onClick={openAdd} className="btn-primary inline-flex items-center gap-2">
-            <PlusIcon /><span>Add Product</span>
-          </button>
+          <p className="text-gray-600 text-sm mb-6">Your product catalog is empty.</p>
+          <button onClick={openAdd} className="btn-primary inline-flex items-center gap-2"><PlusIcon /><span>Add Product</span></button>
         </div>
       )}
     </div>

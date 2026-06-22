@@ -17,10 +17,10 @@ export default function Layout() {
         <div className="p-6 border-b border-white/5">
           <Link to="/" className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
-              <span className="text-white font-bold text-lg">S</span>
+              <span className="text-white font-bold text-lg">I</span>
             </div>
             <div>
-              <span className="text-lg font-bold text-white tracking-tight">StockFlow</span>
+              <span className="text-lg font-bold text-white tracking-tight">Inventory Pro </span>
               <p className="text-[10px] text-gray-500 tracking-widest uppercase">Inventory & Order Management System</p>
             </div>
           </Link>

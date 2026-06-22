@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { fetchCustomers, createCustomer, deleteCustomer } from '../api'
-import { UsersIcon, PlusIcon, TrashIcon, CloseIcon } from '../components/Icons'
+import { useToast } from '../components/Toast'
+import { UsersIcon, PlusIcon, TrashIcon, CloseIcon, SearchIcon } from '../components/Icons'
 
 const emptyForm = { full_name: '', email: '', phone: '' }
 
@@ -9,6 +10,8 @@ export default function Customers() {
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [error, setError] = useState('')
+  const [search, setSearch] = useState('')
+  const toast = useToast()
 
   useEffect(() => { loadCustomers() }, [])
 
@@ -21,11 +24,18 @@ export default function Customers() {
     }
   }
 
+  const filtered = customers.filter(c =>
+    !search ||
+    c.full_name.toLowerCase().includes(search.toLowerCase()) ||
+    c.email.toLowerCase().includes(search.toLowerCase())
+  )
+
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
     try {
       await createCustomer(form)
+      toast('Customer added successfully')
       setShowForm(false)
       setForm(emptyForm)
       await loadCustomers()
@@ -34,10 +44,10 @@ export default function Customers() {
     }
   }
 
-  async function handleDelete(id) {
-    if (!confirm('Delete this customer?')) return
+  async function handleDelete(id, name) {
     try {
       await deleteCustomer(id)
+      toast(`"${name}" removed`, 'error')
       await loadCustomers()
     } catch (err) {
       setError(err.message)
@@ -69,9 +79,7 @@ export default function Customers() {
         <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 mb-8">
           <div className="flex items-center justify-between mb-5">
             <h3 className="text-lg font-semibold text-white">New Customer</h3>
-            <button onClick={() => setShowForm(false)} className="text-gray-500 hover:text-gray-300 transition-colors">
-              <CloseIcon />
-            </button>
+            <button onClick={() => setShowForm(false)} className="text-gray-500 hover:text-gray-300 transition-colors"><CloseIcon /></button>
           </div>
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -89,16 +97,21 @@ export default function Customers() {
               </div>
               <div className="flex items-end gap-2">
                 <button type="submit" className="btn-success flex-1">Save</button>
-                <button type="button" onClick={() => setShowForm(false)} className="btn-secondary flex-none">
-                  <CloseIcon />
-                </button>
+                <button type="button" onClick={() => setShowForm(false)} className="btn-secondary flex-none"><CloseIcon /></button>
               </div>
             </div>
           </form>
         </div>
       )}
 
-      {customers.length > 0 ? (
+      {customers.length > 0 && (
+        <div className="relative mb-4">
+          <div className="absolute inset-y-0 left-4 flex items-center text-gray-500"><SearchIcon /></div>
+          <input placeholder="Search customers by name or email..." value={search} onChange={(e) => setSearch(e.target.value)} className="input-field w-full pl-11" />
+        </div>
+      )}
+
+      {filtered.length > 0 ? (
         <div className="rounded-2xl border border-white/5 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left">
@@ -111,7 +124,7 @@ export default function Customers() {
                 </tr>
               </thead>
               <tbody>
-                {customers.map((c, i) => (
+                {filtered.map((c, i) => (
                   <tr key={c.id} className={`border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors ${i % 2 === 0 ? 'bg-white/[0.01]' : ''}`}>
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
@@ -122,13 +135,9 @@ export default function Customers() {
                       </div>
                     </td>
                     <td className="py-4 px-6 text-gray-400">{c.email}</td>
-                    <td className="py-4 px-6">
-                      <span className="font-mono text-xs text-gray-500 bg-white/5 px-2.5 py-1 rounded-lg">{c.phone}</span>
-                    </td>
+                    <td className="py-4 px-6"><span className="font-mono text-xs text-gray-500 bg-white/5 px-2.5 py-1 rounded-lg">{c.phone}</span></td>
                     <td className="py-4 px-6 text-right">
-                      <button onClick={() => handleDelete(c.id)} className="p-2 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-all" title="Delete">
-                        <TrashIcon />
-                      </button>
+                      <button onClick={() => handleDelete(c.id, c.full_name)} className="p-2 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-all" title="Delete"><TrashIcon /></button>
                     </td>
                   </tr>
                 ))}
@@ -136,16 +145,16 @@ export default function Customers() {
             </table>
           </div>
         </div>
+      ) : customers.length > 0 ? (
+        <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-10 text-center">
+          <p className="text-gray-500">No customers match "{search}"</p>
+        </div>
       ) : (
         <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-16 text-center">
-          <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-5">
-            <div className="text-gray-500"><UsersIcon /></div>
-          </div>
+          <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-5"><div className="text-gray-500"><UsersIcon /></div></div>
           <h3 className="text-xl text-gray-400 font-medium mb-2">No customers yet</h3>
-          <p className="text-gray-600 text-sm mb-6">Your customer directory is empty. Add your first customer.</p>
-          <button onClick={() => { setForm(emptyForm); setShowForm(true) }} className="btn-primary inline-flex items-center gap-2">
-            <PlusIcon /><span>Add Customer</span>
-          </button>
+          <p className="text-gray-600 text-sm mb-6">Your customer directory is empty.</p>
+          <button onClick={() => { setForm(emptyForm); setShowForm(true) }} className="btn-primary inline-flex items-center gap-2"><PlusIcon /><span>Add Customer</span></button>
         </div>
       )}
     </div>

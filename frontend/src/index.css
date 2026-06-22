@@ -81,3 +81,8 @@ select option {
   @apply bg-gradient-to-r from-red-500 to-rose-500 text-white px-5 py-2.5 rounded-xl font-medium 
          hover:from-red-400 hover:to-rose-400 transition-all duration-200 shadow-lg shadow-red-500/20;
 }
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
