@@ -20,10 +20,6 @@ export default function Customers() {
     }
   }
 
-  function handleChange(e) {
-    setForm({ ...form, [e.target.name]: e.target.value })
-  }
-
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
@@ -38,7 +34,7 @@ export default function Customers() {
   }
 
   async function handleDelete(id) {
-    if (!confirm('Are you sure you want to delete this customer?')) return
+    if (!confirm('Delete this customer?')) return
     try {
       await deleteCustomer(id)
       await loadCustomers()
@@ -49,56 +45,74 @@ export default function Customers() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold text-gray-800">Customers</h2>
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h2 className="text-3xl font-bold text-white">Customers</h2>
+          <p className="text-gray-400 mt-1">Manage your customer base</p>
+        </div>
         <button
           onClick={() => { setForm(emptyForm); setShowForm(true) }}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20"
         >
-          Add Customer
+          <span>+</span>
+          <span>Add Customer</span>
         </button>
       </div>
 
-      {error && <p className="text-red-500 mb-4">{error}</p>}
+      {error && (
+        <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-lg mb-6">
+          {error}
+        </div>
+      )}
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <input name="full_name" placeholder="Full Name" value={form.full_name} onChange={handleChange} required className="border p-2 rounded" />
-          <input name="email" type="email" placeholder="Email" value={form.email} onChange={handleChange} required className="border p-2 rounded" />
-          <input name="phone" placeholder="Phone" value={form.phone} onChange={handleChange} required className="border p-2 rounded" />
-          <div className="flex gap-2">
-            <button type="submit" className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Save</button>
-            <button type="button" onClick={() => setShowForm(false)} className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">Cancel</button>
+        <form onSubmit={handleSubmit} className="bg-dark-850 border border-dark-700 rounded-xl p-6 mb-8">
+          <h3 className="text-lg font-medium text-white mb-4">New Customer</h3>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <input name="full_name" placeholder="Full Name" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} required className="bg-dark-800 border border-dark-600 text-gray-200 rounded-lg px-4 py-2.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors" />
+            <input name="email" type="email" placeholder="Email Address" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required className="bg-dark-800 border border-dark-600 text-gray-200 rounded-lg px-4 py-2.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors" />
+            <input name="phone" placeholder="Phone Number" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} required className="bg-dark-800 border border-dark-600 text-gray-200 rounded-lg px-4 py-2.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors" />
+            <div className="flex gap-2 items-end">
+              <button type="submit" className="w-full bg-green-600 text-white px-4 py-2.5 rounded-lg hover:bg-green-700 transition-colors font-medium">Save</button>
+              <button type="button" onClick={() => setShowForm(false)} className="w-full bg-dark-700 text-gray-300 px-4 py-2.5 rounded-lg hover:bg-dark-600 transition-colors">Cancel</button>
+            </div>
           </div>
         </form>
       )}
 
-      <div className="bg-white rounded-lg shadow overflow-x-auto">
-        <table className="w-full text-left">
-          <thead>
-            <tr className="border-b bg-gray-50">
-              <th className="py-3 px-4">Name</th>
-              <th className="py-3 px-4">Email</th>
-              <th className="py-3 px-4">Phone</th>
-              <th className="py-3 px-4">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {customers.map((c) => (
-              <tr key={c.id} className="border-b hover:bg-gray-50">
-                <td className="py-3 px-4">{c.full_name}</td>
-                <td className="py-3 px-4">{c.email}</td>
-                <td className="py-3 px-4">{c.phone}</td>
-                <td className="py-3 px-4">
-                  <button onClick={() => handleDelete(c.id)} className="text-red-600 hover:text-red-800">Delete</button>
-                </td>
+      <div className="bg-dark-850 border border-dark-700 rounded-xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="bg-dark-800/50">
+                <th className="py-3.5 px-6 text-gray-400 font-medium text-sm uppercase tracking-wider">Name</th>
+                <th className="py-3.5 px-6 text-gray-400 font-medium text-sm uppercase tracking-wider">Email</th>
+                <th className="py-3.5 px-6 text-gray-400 font-medium text-sm uppercase tracking-wider">Phone</th>
+                <th className="py-3.5 px-6 text-gray-400 font-medium text-sm uppercase tracking-wider">Actions</th>
               </tr>
-            ))}
-            {customers.length === 0 && (
-              <tr><td colSpan="4" className="py-4 text-center text-gray-500">No customers found</td></tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {customers.map((c) => (
+                <tr key={c.id} className="border-t border-dark-700 hover:bg-dark-800/30 transition-colors">
+                  <td className="py-4 px-6 text-white font-medium">{c.full_name}</td>
+                  <td className="py-4 px-6 text-gray-400">{c.email}</td>
+                  <td className="py-4 px-6 text-gray-400 font-mono text-sm">{c.phone}</td>
+                  <td className="py-4 px-6">
+                    <button onClick={() => handleDelete(c.id)} className="text-red-400 hover:text-red-300 transition-colors text-sm font-medium">Delete</button>
+                  </td>
+                </tr>
+              ))}
+              {customers.length === 0 && (
+                <tr>
+                  <td colSpan="4" className="py-12 text-center text-gray-500">
+                    <p className="text-4xl mb-3">👥</p>
+                    <p>No customers yet. Click "Add Customer" to get started.</p>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )
