@@ -45,3 +45,63 @@ export async function deleteProduct(id) {
     throw new Error(err.detail || 'Failed to delete product')
   }
 }
+
+export async function fetchCustomers() {
+  const res = await fetch(`${API_BASE}/customers`)
+  if (!res.ok) throw new Error('Failed to fetch customers')
+  return res.json()
+}
+
+export async function createCustomer(customer) {
+  const res = await fetch(`${API_BASE}/customers`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(customer),
+  })
+  if (!res.ok) {
+    const err = await res.json()
+    throw new Error(err.detail || 'Failed to create customer')
+  }
+  return res.json()
+}
+
+export async function deleteCustomer(id) {
+  const res = await fetch(`${API_BASE}/customers/${id}`, { method: 'DELETE' })
+  if (!res.ok) {
+    const err = await res.json()
+    throw new Error(err.detail || 'Failed to delete customer')
+  }
+}
+
+export async function fetchOrders() {
+  const res = await fetch(`${API_BASE}/orders`)
+  if (!res.ok) throw new Error('Failed to fetch orders')
+  return res.json()
+}
+
+export async function fetchOrder(id) {
+  const res = await fetch(`${API_BASE}/orders/${id}`)
+  if (!res.ok) throw new Error('Failed to fetch order')
+  return res.json()
+}
+
+export async function createOrder(order) {
+  const res = await fetch(`${API_BASE}/orders`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(order),
+  })
+  if (!res.ok) {
+    const err = await res.json()
+    throw new Error(err.detail || 'Failed to create order')
+  }
+  return res.json()
+}
+
+export async function deleteOrder(id) {
+  const res = await fetch(`${API_BASE}/orders/${id}`, { method: 'DELETE' })
+  if (!res.ok) {
+    const err = await res.json()
+    throw new Error(err.detail || 'Failed to delete order')
+  }
+}
