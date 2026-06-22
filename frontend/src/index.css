@@ -3,26 +3,81 @@
 @tailwind utilities;
 
 body {
-  @apply bg-dark-900 text-gray-200;
+  @apply bg-[#0a0e1a] text-gray-200 font-sans antialiased;
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  @apply bg-dark-850;
+  @apply bg-transparent;
 }
 ::-webkit-scrollbar-thumb {
-  @apply bg-dark-600 rounded;
+  @apply bg-white/10 rounded-full;
 }
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-dark-500;
+  @apply bg-white/20;
 }
 
-input, select {
-  @apply bg-dark-800 border-dark-600 text-gray-200 placeholder-gray-500;
+select option {
+  @apply bg-[#131a2e] text-gray-200;
 }
-input:focus, select:focus {
-  @apply border-blue-500 ring-1 ring-blue-500 outline-none;
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.glass {
+  background: rgba(19, 26, 46, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glow-blue {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.15), 0 0 40px rgba(59, 130, 246, 0.05);
+}
+
+.glow-amber {
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.15), 0 0 40px rgba(245, 158, 11, 0.05);
+}
+
+.glow-emerald {
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.15), 0 0 40px rgba(16, 185, 129, 0.05);
+}
+
+.glow-purple {
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.15), 0 0 40px rgba(139, 92, 246, 0.05);
+}
+
+.input-field {
+  @apply bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-gray-200 placeholder-gray-500 
+         focus:border-amber-500/50 focus:ring-2 focus:ring-amber-500/10 outline-none transition-all duration-200;
+}
+
+.btn-primary {
+  @apply bg-gradient-to-r from-amber-500 to-orange-500 text-white px-5 py-2.5 rounded-xl font-medium 
+         hover:from-amber-400 hover:to-orange-400 transition-all duration-200 shadow-lg shadow-amber-500/20;
+}
+
+.btn-secondary {
+  @apply bg-white/5 border border-white/10 text-gray-300 px-5 py-2.5 rounded-xl font-medium 
+         hover:bg-white/10 hover:text-white transition-all duration-200;
+}
+
+.btn-success {
+  @apply bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-5 py-2.5 rounded-xl font-medium 
+         hover:from-emerald-400 hover:to-teal-400 transition-all duration-200 shadow-lg shadow-emerald-500/20;
+}
+
+.btn-danger {
+  @apply bg-gradient-to-r from-red-500 to-rose-500 text-white px-5 py-2.5 rounded-xl font-medium 
+         hover:from-red-400 hover:to-rose-400 transition-all duration-200 shadow-lg shadow-red-500/20;
 }

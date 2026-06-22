@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { fetchOrders, fetchCustomers, fetchProducts, createOrder, deleteOrder, fetchOrder } from '../api'
+import { ClipboardIcon, PlusIcon, EyeIcon, TrashIcon, CloseIcon } from '../components/Icons'
 
 export default function Orders() {
   const [orders, setOrders] = useState([])
@@ -64,129 +65,157 @@ export default function Orders() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex items-center justify-between mb-10">
         <div>
-          <h2 className="text-3xl font-bold text-white">Orders</h2>
-          <p className="text-gray-400 mt-1">Track and manage orders</p>
+          <h1 className="text-4xl font-bold text-white tracking-tight">Orders</h1>
+          <p className="text-gray-500 text-sm mt-2">{orders.length} order{orders.length !== 1 ? 's' : ''} placed</p>
         </div>
-        <button
-          onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/20"
-        >
-          <span>+</span>
-          <span>Create Order</span>
+        <button onClick={() => setShowForm(true)} className="btn-primary flex items-center gap-2">
+          <PlusIcon /><span>Create Order</span>
         </button>
       </div>
 
       {error && (
-        <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-lg mb-6">
+        <div className="flex items-center gap-3 bg-red-500/5 border border-red-500/10 text-red-400 px-5 py-3.5 rounded-xl mb-6 text-sm">
+          <span className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />
           {error}
         </div>
       )}
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-dark-850 border border-dark-700 rounded-xl p-6 mb-8">
-          <h3 className="text-lg font-medium text-white mb-4">New Order</h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <select name="customer_id" value={form.customer_id} onChange={(e) => setForm({ ...form, customer_id: e.target.value })} required className="bg-dark-800 border border-dark-600 text-gray-200 rounded-lg px-4 py-2.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors">
-              <option value="">Select Customer</option>
-              {customers.map((c) => <option key={c.id} value={c.id}>{c.full_name}</option>)}
-            </select>
-            <select name="product_id" value={form.product_id} onChange={(e) => setForm({ ...form, product_id: e.target.value })} required className="bg-dark-800 border border-dark-600 text-gray-200 rounded-lg px-4 py-2.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors">
-              <option value="">Select Product</option>
-              {products.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name} — ${p.price} ({p.quantity} in stock)
-                </option>
-              ))}
-            </select>
-            <input name="quantity" type="number" min="1" placeholder="Quantity" value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} required className="bg-dark-800 border border-dark-600 text-gray-200 rounded-lg px-4 py-2.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-colors" />
-            <div className="flex gap-2 items-end">
-              <button type="submit" className="w-full bg-green-600 text-white px-4 py-2.5 rounded-lg hover:bg-green-700 transition-colors font-medium">Create</button>
-              <button type="button" onClick={() => setShowForm(false)} className="w-full bg-dark-700 text-gray-300 px-4 py-2.5 rounded-lg hover:bg-dark-600 transition-colors">Cancel</button>
-            </div>
+        <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-6 mb-8">
+          <div className="flex items-center justify-between mb-5">
+            <h3 className="text-lg font-semibold text-white">New Order</h3>
+            <button onClick={() => setShowForm(false)} className="text-gray-500 hover:text-gray-300 transition-colors">
+              <CloseIcon />
+            </button>
           </div>
-        </form>
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div>
+                <label className="text-xs text-gray-500 mb-1.5 block tracking-wide">Customer</label>
+                <select name="customer_id" value={form.customer_id} onChange={(e) => setForm({ ...form, customer_id: e.target.value })} required className="input-field w-full">
+                  <option value="">Select customer</option>
+                  {customers.map((c) => <option key={c.id} value={c.id}>{c.full_name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 mb-1.5 block tracking-wide">Product</label>
+                <select name="product_id" value={form.product_id} onChange={(e) => setForm({ ...form, product_id: e.target.value })} required className="input-field w-full">
+                  <option value="">Select product</option>
+                  {products.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} — ${p.price} ({p.quantity} avail.)
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 mb-1.5 block tracking-wide">Quantity</label>
+                <input name="quantity" type="number" min="1" placeholder="1" value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} required className="input-field w-full" />
+              </div>
+              <div className="flex items-end gap-2">
+                <button type="submit" className="btn-success flex-1">Create</button>
+                <button type="button" onClick={() => setShowForm(false)} className="btn-secondary flex-none">
+                  <CloseIcon />
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
       )}
 
       {detail && (
-        <div className="bg-dark-850 border border-blue-500/20 rounded-xl p-6 mb-8">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-white">Order #{detail.id}</h3>
-            <button onClick={() => setDetail(null)} className="text-gray-400 hover:text-white transition-colors text-sm">Close</button>
+        <div className="rounded-2xl border border-amber-500/10 bg-amber-500/[0.02] p-6 mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400">
+                <ClipboardIcon />
+              </div>
+              <h3 className="text-lg font-semibold text-white">Order <span className="text-amber-400">#{detail.id}</span></h3>
+            </div>
+            <button onClick={() => setDetail(null)} className="btn-secondary text-sm !px-3 !py-1.5 flex items-center gap-1">
+              <CloseIcon /> <span className="text-xs">Close</span>
+            </button>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-            <div className="bg-dark-800/50 rounded-lg p-4">
-              <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">Customer</p>
-              <p className="text-white font-medium">{detail.customer_name}</p>
-            </div>
-            <div className="bg-dark-800/50 rounded-lg p-4">
-              <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">Product</p>
-              <p className="text-white font-medium">{detail.product_name}</p>
-            </div>
-            <div className="bg-dark-800/50 rounded-lg p-4">
-              <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">Quantity</p>
-              <p className="text-white font-medium">{detail.quantity}</p>
-            </div>
-            <div className="bg-dark-800/50 rounded-lg p-4">
-              <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">Total</p>
-              <p className="text-emerald-400 font-bold text-lg">${detail.total_amount.toFixed(2)}</p>
-            </div>
-            <div className="bg-dark-800/50 rounded-lg p-4">
-              <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">Status</p>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-500/10 text-green-400">
-                {detail.status}
-              </span>
-            </div>
-            <div className="bg-dark-800/50 rounded-lg p-4">
-              <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">Date</p>
-              <p className="text-gray-300 text-sm">{new Date(detail.created_at).toLocaleString()}</p>
-            </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {[
+              { label: 'Customer', value: detail.customer_name },
+              { label: 'Product', value: detail.product_name },
+              { label: 'Quantity', value: detail.quantity },
+              { label: 'Total', value: `$${detail.total_amount.toFixed(2)}`, highlight: true },
+              {
+                label: 'Status',
+                value: (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/10">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    {detail.status}
+                  </span>
+                ),
+              },
+              { label: 'Date', value: new Date(detail.created_at).toLocaleString() },
+            ].map((item) => (
+              <div key={item.label} className="bg-white/[0.02] rounded-xl p-4 border border-white/5">
+                <p className="text-gray-500 text-xs uppercase tracking-widest mb-1.5">{item.label}</p>
+                <p className={`text-white font-medium ${item.highlight ? 'text-2xl text-amber-400' : ''}`}>{item.value}</p>
+              </div>
+            ))}
           </div>
         </div>
       )}
 
-      <div className="bg-dark-850 border border-dark-700 rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="bg-dark-800/50">
-                <th className="py-3.5 px-6 text-gray-400 font-medium text-sm uppercase tracking-wider">Order #</th>
-                <th className="py-3.5 px-6 text-gray-400 font-medium text-sm uppercase tracking-wider">Customer</th>
-                <th className="py-3.5 px-6 text-gray-400 font-medium text-sm uppercase tracking-wider">Product</th>
-                <th className="py-3.5 px-6 text-gray-400 font-medium text-sm uppercase tracking-wider">Qty</th>
-                <th className="py-3.5 px-6 text-gray-400 font-medium text-sm uppercase tracking-wider">Total</th>
-                <th className="py-3.5 px-6 text-gray-400 font-medium text-sm uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((o) => (
-                <tr key={o.id} className="border-t border-dark-700 hover:bg-dark-800/30 transition-colors">
-                  <td className="py-4 px-6 text-white font-mono text-sm">#{o.id}</td>
-                  <td className="py-4 px-6 text-gray-300">{o.customer_id}</td>
-                  <td className="py-4 px-6 text-gray-300">{o.product_id}</td>
-                  <td className="py-4 px-6 text-gray-300">{o.quantity}</td>
-                  <td className="py-4 px-6 text-emerald-400 font-medium">${o.total_amount.toFixed(2)}</td>
-                  <td className="py-4 px-6">
-                    <div className="flex gap-3">
-                      <button onClick={() => handleView(o.id)} className="text-blue-400 hover:text-blue-300 transition-colors text-sm font-medium">View</button>
-                      <button onClick={() => handleDelete(o.id)} className="text-red-400 hover:text-red-300 transition-colors text-sm font-medium">Cancel</button>
-                    </div>
-                  </td>
+      {orders.length > 0 ? (
+        <div className="rounded-2xl border border-white/5 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-white/5 bg-white/[0.02]">
+                  <th className="py-4 px-6 text-gray-500 font-medium text-xs uppercase tracking-widest">Order</th>
+                  <th className="py-4 px-6 text-gray-500 font-medium text-xs uppercase tracking-widest">Customer</th>
+                  <th className="py-4 px-6 text-gray-500 font-medium text-xs uppercase tracking-widest">Product</th>
+                  <th className="py-4 px-6 text-gray-500 font-medium text-xs uppercase tracking-widest">Qty</th>
+                  <th className="py-4 px-6 text-gray-500 font-medium text-xs uppercase tracking-widest">Total</th>
+                  <th className="py-4 px-6 text-gray-500 font-medium text-xs uppercase tracking-widest text-right">Actions</th>
                 </tr>
-              ))}
-              {orders.length === 0 && (
-                <tr>
-                  <td colSpan="6" className="py-12 text-center text-gray-500">
-                    <p className="text-4xl mb-3">📋</p>
-                    <p>No orders yet. Click "Create Order" to get started.</p>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {orders.map((o, i) => (
+                  <tr key={o.id} className={`border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors ${i % 2 === 0 ? 'bg-white/[0.01]' : ''}`}>
+                    <td className="py-4 px-6">
+                      <span className="font-mono text-sm text-amber-400 font-medium">#{o.id}</span>
+                    </td>
+                    <td className="py-4 px-6 text-gray-300">{o.customer_id}</td>
+                    <td className="py-4 px-6 text-gray-300">{o.product_id}</td>
+                    <td className="py-4 px-6 text-gray-400">{o.quantity}</td>
+                    <td className="py-4 px-6 text-amber-400 font-medium">${o.total_amount.toFixed(2)}</td>
+                    <td className="py-4 px-6 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <button onClick={() => handleView(o.id)} className="p-2 rounded-lg text-gray-500 hover:text-amber-400 hover:bg-amber-500/10 transition-all" title="View details">
+                          <EyeIcon />
+                        </button>
+                        <button onClick={() => handleDelete(o.id)} className="p-2 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-all" title="Cancel order">
+                          <TrashIcon />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-16 text-center">
+          <div className="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-5">
+            <div className="text-gray-500"><ClipboardIcon /></div>
+          </div>
+          <h3 className="text-xl text-gray-400 font-medium mb-2">No orders yet</h3>
+          <p className="text-gray-600 text-sm mb-6">No orders have been placed yet. Create your first order.</p>
+          <button onClick={() => setShowForm(true)} className="btn-primary inline-flex items-center gap-2">
+            <PlusIcon /><span>Create Order</span>
+          </button>
+        </div>
+      )}
     </div>
   )
 }
