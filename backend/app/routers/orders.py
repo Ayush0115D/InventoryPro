@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from datetime import datetime, timezone
 from app.database import get_db
 from app.models.order import Order
 from app.models.product import Product
 from app.models.customer import Customer
-from app.schemas.order import OrderCreate, OrderResponse, OrderDetailResponse
+from app.schemas.order import OrderCreate, OrderResponse, OrderDetailResponse, StatusUpdate, VALID_TRANSITIONS
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
@@ -30,11 +31,15 @@ def create_order(payload: OrderCreate, db: Session = Depends(get_db)):
 
     total_amount = product.price * payload.quantity
 
+    now = datetime.now(timezone.utc)
     order = Order(
         customer_id=payload.customer_id,
         product_id=payload.product_id,
         quantity=payload.quantity,
         total_amount=total_amount,
+        status="pending",
+        created_at=now,
+        updated_at=now,
     )
 
     product.quantity -= payload.quantity
@@ -67,9 +72,36 @@ def get_order(order_id: int, db: Session = Depends(get_db)):
         total_amount=order.total_amount,
         status=order.status,
         created_at=order.created_at,
+        updated_at=order.updated_at,
         customer_name=customer.full_name if customer else "Unknown",
         product_name=product.name if product else "Unknown",
     )
+
+
+@router.patch("/{order_id}/status", response_model=OrderResponse)
+def update_order_status(order_id: int, payload: StatusUpdate, db: Session = Depends(get_db)):
+    order = db.query(Order).filter(Order.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    allowed = VALID_TRANSITIONS.get(order.status, [])
+    if payload.status not in allowed:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot transition from '{order.status}' to '{payload.status}'. Allowed: {', '.join(allowed) if allowed else 'none (terminal state)'}"
+        )
+
+    # Restore stock if cancelling from a non-terminal state
+    if payload.status == "cancelled" and order.status != "cancelled":
+        product = db.query(Product).filter(Product.id == order.product_id).first()
+        if product:
+            product.quantity += order.quantity
+
+    order.status = payload.status
+    order.updated_at = datetime.now(timezone.utc)
+    db.commit()
+    db.refresh(order)
+    return order
 
 
 @router.delete("/{order_id}", status_code=status.HTTP_204_NO_CONTENT)

@@ -1,7 +1,46 @@
 import { useState, useEffect } from 'react'
-import { fetchOrders, fetchCustomers, fetchProducts, createOrder, deleteOrder, fetchOrder } from '../api'
+import { fetchOrders, fetchCustomers, fetchProducts, createOrder, deleteOrder, fetchOrder, updateOrderStatus } from '../api'
 import { useToast } from '../components/Toast'
 import { ClipboardIcon, PlusIcon, EyeIcon, TrashIcon, CloseIcon, SearchIcon } from '../components/Icons'
+
+const STATUS_CONFIG = {
+  pending: { label: 'Pending', bg: 'bg-amber-500/10', text: 'text-amber-400', border: 'border-amber-500/10', dot: 'bg-amber-400' },
+  processing: { label: 'Processing', bg: 'bg-blue-500/10', text: 'text-blue-400', border: 'border-blue-500/10', dot: 'bg-blue-400' },
+  shipped: { label: 'Shipped', bg: 'bg-purple-500/10', text: 'text-purple-400', border: 'border-purple-500/10', dot: 'bg-purple-400' },
+  delivered: { label: 'Delivered', bg: 'bg-emerald-500/10', text: 'text-emerald-400', border: 'border-emerald-500/10', dot: 'bg-emerald-400' },
+  cancelled: { label: 'Cancelled', bg: 'bg-red-500/10', text: 'text-red-400', border: 'border-red-500/10', dot: 'bg-red-400' },
+  completed: { label: 'Completed', bg: 'bg-emerald-500/10', text: 'text-emerald-400', border: 'border-emerald-500/10', dot: 'bg-emerald-400' },
+}
+
+const NEXT_STATUS = {
+  pending: ['processing', 'cancelled'],
+  processing: ['shipped', 'cancelled'],
+  shipped: ['delivered', 'cancelled'],
+  delivered: [],
+  cancelled: [],
+  completed: [],
+}
+
+function timeAgo(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 1) return 'just now'
+  if (mins < 60) return `${mins}m ago`
+  const hrs = Math.floor(mins / 60)
+  if (hrs < 24) return `${hrs}h ago`
+  const days = Math.floor(hrs / 24)
+  return `${days}d ago`
+}
+
+function StatusBadge({ status }) {
+  const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.pending
+  return (
+    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold ${cfg.bg} ${cfg.text} ${cfg.border} border`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
+      {cfg.label}
+    </span>
+  )
+}
 
 export default function Orders() {
   const [orders, setOrders] = useState([])
@@ -70,6 +109,20 @@ export default function Orders() {
       await deleteOrder(id)
       toast('Order cancelled', 'error')
       setDetail(null)
+      await loadOrders()
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
+  async function handleStatusChange(orderId, newStatus) {
+    try {
+      await updateOrderStatus(orderId, newStatus)
+      toast(`Status updated to ${STATUS_CONFIG[newStatus]?.label || newStatus}`)
+      if (detail && detail.id === orderId) {
+        const updated = await fetchOrder(orderId)
+        setDetail(updated)
+      }
       await loadOrders()
     } catch (err) {
       setError(err.message)
@@ -147,8 +200,34 @@ export default function Orders() {
               { label: 'Product', value: detail.product_name },
               { label: 'Quantity', value: detail.quantity },
               { label: 'Total', value: `₹${detail.total_amount.toFixed(2)}`, highlight: true },
-              { label: 'Status', value: <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/10"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />{detail.status}</span> },
-              { label: 'Date', value: new Date(detail.created_at).toLocaleString() },
+              {
+                label: 'Status',
+                value: (
+                  <div className="flex flex-col gap-2">
+                    <StatusBadge status={detail.status} />
+                    {NEXT_STATUS[detail.status]?.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mt-1">
+                        {NEXT_STATUS[detail.status].map((ns) => {
+                          const cfg = STATUS_CONFIG[ns]
+                          return (
+                            <button
+                              key={ns}
+                              onClick={() => handleStatusChange(detail.id, ns)}
+                              className={`text-xs px-2.5 py-1 rounded-lg border font-medium transition-all hover:scale-105 ${cfg.bg} ${cfg.text} ${cfg.border}`}
+                            >
+                              Mark {cfg.label}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    )}
+                    {detail.updated_at && (
+                      <span className="text-[10px] text-gray-600 mt-0.5">Updated {timeAgo(detail.updated_at)}</span>
+                    )}
+                  </div>
+                ),
+              },
+              { label: 'Created', value: new Date(detail.created_at).toLocaleString() },
             ].map((item) => (
               <div key={item.label} className="bg-white/[0.02] rounded-xl p-4 border border-white/5">
                 <p className="text-gray-500 text-xs uppercase tracking-widest mb-1.5">{item.label}</p>
@@ -175,6 +254,7 @@ export default function Orders() {
                   <th className="py-4 px-6 text-gray-500 font-medium text-xs uppercase tracking-widest">Order</th>
                   <th className="py-4 px-6 text-gray-500 font-medium text-xs uppercase tracking-widest">Customer</th>
                   <th className="py-4 px-6 text-gray-500 font-medium text-xs uppercase tracking-widest">Product</th>
+                  <th className="py-4 px-6 text-gray-500 font-medium text-xs uppercase tracking-widest">Status</th>
                   <th className="py-4 px-6 text-gray-500 font-medium text-xs uppercase tracking-widest">Qty</th>
                   <th className="py-4 px-6 text-gray-500 font-medium text-xs uppercase tracking-widest">Total</th>
                   <th className="py-4 px-6 text-gray-500 font-medium text-xs uppercase tracking-widest text-right">Actions</th>
@@ -186,6 +266,7 @@ export default function Orders() {
                     <td className="py-4 px-6"><span className="font-mono text-sm text-amber-400 font-medium">#{o.id}</span></td>
                     <td className="py-4 px-6 text-gray-300">{customers.find(c => c.id === o.customer_id)?.full_name || `ID: ${o.customer_id}`}</td>
                     <td className="py-4 px-6 text-gray-300">{products.find(p => p.id === o.product_id)?.name || `ID: ${o.product_id}`}</td>
+                    <td className="py-4 px-6"><StatusBadge status={o.status} /></td>
                     <td className="py-4 px-6 text-gray-400">{o.quantity}</td>
                     <td className="py-4 px-6 text-amber-400 font-medium">₹{o.total_amount.toFixed(2)}</td>
                     <td className="py-4 px-6 text-right">

@@ -105,3 +105,16 @@ export async function deleteOrder(id) {
     throw new Error(err.detail || 'Failed to delete order')
   }
 }
+
+export async function updateOrderStatus(id, status) {
+  const res = await fetch(`${API_BASE}/orders/${id}/status`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status }),
+  })
+  if (!res.ok) {
+    const err = await res.json()
+    throw new Error(err.detail || 'Failed to update status')
+  }
+  return res.json()
+}
