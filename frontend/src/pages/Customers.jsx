@@ -85,15 +85,15 @@ export default function Customers() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <label className="text-xs text-gray-500 mb-1.5 block tracking-wide">Full Name</label>
-                <input name="full_name" placeholder="John Doe" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} required className="input-field w-full" />
+                <input name="full_name" placeholder="John Doe" value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} required className="input-field w-full px-4" />
               </div>
               <div>
                 <label className="text-xs text-gray-500 mb-1.5 block tracking-wide">Email</label>
-                <input name="email" type="email" placeholder="john@example.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required className="input-field w-full" />
+                <input name="email" type="email" placeholder="john@example.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required className="input-field w-full px-4" />
               </div>
               <div>
                 <label className="text-xs text-gray-500 mb-1.5 block tracking-wide">Phone</label>
-                <input name="phone" placeholder="+1 (555) 000-0000" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} required className="input-field w-full" />
+                <input name="phone" placeholder="+1 (555) 000-0000" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} required className="input-field w-full px-4" />
               </div>
               <div className="flex items-end gap-2">
                 <button type="submit" className="btn-success flex-1">Save</button>
@@ -107,7 +107,7 @@ export default function Customers() {
       {customers.length > 0 && (
         <div className="relative mb-4">
           <div className="absolute inset-y-0 left-4 flex items-center text-gray-500"><SearchIcon /></div>
-          <input placeholder="Search customers by name or email..." value={search} onChange={(e) => setSearch(e.target.value)} className="input-field w-full pl-11" />
+          <input placeholder="Search customers by name or email..." value={search} onChange={(e) => setSearch(e.target.value)} className="input-field w-full pl-11 pr-4" />
         </div>
       )}
 

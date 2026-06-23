@@ -112,19 +112,19 @@ export default function Products() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
               <div className="lg:col-span-1">
                 <label className="text-xs text-gray-500 mb-1.5 block tracking-wide">Product Name</label>
-                <input name="name" placeholder="e.g. Wireless Mouse" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="input-field w-full" />
+                <input name="name" placeholder="e.g. Wireless Mouse" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="input-field w-full px-4" />
               </div>
               <div className="lg:col-span-1">
                 <label className="text-xs text-gray-500 mb-1.5 block tracking-wide">SKU Code</label>
-                <input name="sku" placeholder="e.g. WM-001" value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} required className="input-field w-full" />
+                <input name="sku" placeholder="e.g. WM-001" value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} required className="input-field w-full px-4" />
               </div>
               <div className="lg:col-span-1">
-                <label className="text-xs text-gray-500 mb-1.5 block tracking-wide">Price ($)</label>
-                <input name="price" type="number" step="0.01" placeholder="0.00" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required className="input-field w-full" />
+                <label className="text-xs text-gray-500 mb-1.5 block tracking-wide">Price (₹)</label>
+                <input name="price" type="number" step="0.01" placeholder="0.00" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required className="input-field w-full px-4" />
               </div>
               <div className="lg:col-span-1">
                 <label className="text-xs text-gray-500 mb-1.5 block tracking-wide">Quantity</label>
-                <input name="quantity" type="number" placeholder="0" value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} required className="input-field w-full" />
+                <input name="quantity" type="number" placeholder="0" value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} required className="input-field w-full px-4" />
               </div>
               <div className="lg:col-span-1 flex items-end gap-2">
                 <button type="submit" className="btn-success flex-1">{editing ? 'Update' : 'Save'}</button>
@@ -144,7 +144,7 @@ export default function Products() {
             placeholder="Search products by name or SKU..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="input-field w-full pl-11"
+            className="input-field w-full pl-11 pr-4"
           />
         </div>
       )}
@@ -172,7 +172,7 @@ export default function Products() {
                       </div>
                     </td>
                     <td className="py-4 px-6"><span className="font-mono text-xs text-gray-500 bg-white/5 px-2.5 py-1 rounded-lg">{p.sku}</span></td>
-                    <td className="py-4 px-6 text-amber-400 font-medium">${p.price.toFixed(2)}</td>
+                    <td className="py-4 px-6 text-amber-400 font-medium">₹{p.price.toFixed(2)}</td>
                     <td className="py-4 px-6">
                       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold ${
                         p.quantity < 10 ? 'bg-red-500/10 text-red-400 border border-red-500/10' : p.quantity < 50 ? 'bg-amber-500/10 text-amber-400 border border-amber-500/10' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/10'

@@ -105,23 +105,23 @@ export default function Orders() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <label className="text-xs text-gray-500 mb-1.5 block tracking-wide">Customer</label>
-                <select name="customer_id" value={form.customer_id} onChange={(e) => setForm({ ...form, customer_id: e.target.value })} required className="input-field w-full">
+                <select name="customer_id" value={form.customer_id} onChange={(e) => setForm({ ...form, customer_id: e.target.value })} required className="input-field w-full px-4">
                   <option value="">Select customer</option>
                   {customers.map((c) => <option key={c.id} value={c.id}>{c.full_name}</option>)}
                 </select>
               </div>
               <div>
                 <label className="text-xs text-gray-500 mb-1.5 block tracking-wide">Product</label>
-                <select name="product_id" value={form.product_id} onChange={(e) => setForm({ ...form, product_id: e.target.value })} required className="input-field w-full">
+                <select name="product_id" value={form.product_id} onChange={(e) => setForm({ ...form, product_id: e.target.value })} required className="input-field w-full px-4">
                   <option value="">Select product</option>
                   {products.map((p) => (
-                    <option key={p.id} value={p.id}>{p.name} — ${p.price} ({p.quantity} avail.)</option>
+                    <option key={p.id} value={p.id}>{p.name} — ₹{p.price} ({p.quantity} avail.)</option>
                   ))}
                 </select>
               </div>
               <div>
                 <label className="text-xs text-gray-500 mb-1.5 block tracking-wide">Quantity</label>
-                <input name="quantity" type="number" min="1" placeholder="1" value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} required className="input-field w-full" />
+                <input name="quantity" type="number" min="1" placeholder="1" value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} required className="input-field w-full px-4" />
               </div>
               <div className="flex items-end gap-2">
                 <button type="submit" className="btn-success flex-1">Create</button>
@@ -146,7 +146,7 @@ export default function Orders() {
               { label: 'Customer', value: detail.customer_name },
               { label: 'Product', value: detail.product_name },
               { label: 'Quantity', value: detail.quantity },
-              { label: 'Total', value: `$${detail.total_amount.toFixed(2)}`, highlight: true },
+              { label: 'Total', value: `₹${detail.total_amount.toFixed(2)}`, highlight: true },
               { label: 'Status', value: <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/10"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />{detail.status}</span> },
               { label: 'Date', value: new Date(detail.created_at).toLocaleString() },
             ].map((item) => (
@@ -162,7 +162,7 @@ export default function Orders() {
       {orders.length > 0 && (
         <div className="relative mb-4">
           <div className="absolute inset-y-0 left-4 flex items-center text-gray-500"><SearchIcon /></div>
-          <input placeholder="Search orders by customer, product, or ID..." value={search} onChange={(e) => setSearch(e.target.value)} className="input-field w-full pl-11" />
+          <input placeholder="Search orders by customer, product, or ID..." value={search} onChange={(e) => setSearch(e.target.value)} className="input-field w-full pl-11 pr-4" />
         </div>
       )}
 
@@ -187,7 +187,7 @@ export default function Orders() {
                     <td className="py-4 px-6 text-gray-300">{customers.find(c => c.id === o.customer_id)?.full_name || `ID: ${o.customer_id}`}</td>
                     <td className="py-4 px-6 text-gray-300">{products.find(p => p.id === o.product_id)?.name || `ID: ${o.product_id}`}</td>
                     <td className="py-4 px-6 text-gray-400">{o.quantity}</td>
-                    <td className="py-4 px-6 text-amber-400 font-medium">${o.total_amount.toFixed(2)}</td>
+                    <td className="py-4 px-6 text-amber-400 font-medium">₹{o.total_amount.toFixed(2)}</td>
                     <td className="py-4 px-6 text-right">
                       <div className="flex items-center justify-end gap-1">
                         <button onClick={() => handleView(o.id)} className="p-2 rounded-lg text-gray-500 hover:text-amber-400 hover:bg-amber-500/10 transition-all" title="View details"><EyeIcon /></button>
