@@ -25,15 +25,67 @@ export default function Dashboard() {
 
   if (!data) {
     return (
-      <div className="space-y-6">
-        <div className="skeleton h-8 w-48 rounded-xl" />
-        <div className="skeleton h-4 w-72 rounded-lg" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="skeleton h-32 rounded-2xl" />
+      <div className="space-y-6 animate-in fade-in duration-300">
+        {/* Header Skeleton */}
+        <div className="mb-10">
+          <div className="h-10 w-64 rounded-2xl bg-gradient-to-r from-surface-700 via-surface-600 to-surface-700 animate-pulse mb-4" />
+          <div className="h-4 w-96 rounded-lg bg-gradient-to-r from-surface-700 via-surface-600 to-surface-700 animate-pulse" />
+        </div>
+
+        {/* Stats Cards Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          {[
+            { glow: 'glow-blue', bg: 'bg-blue-500/5', border: 'border-blue-500/10' },
+            { glow: 'glow-emerald', bg: 'bg-emerald-500/5', border: 'border-emerald-500/10' },
+            { glow: 'glow-purple', bg: 'bg-purple-500/5', border: 'border-purple-500/10' },
+          ].map((card, i) => (
+            <div
+              key={i}
+              className={`${card.glow} relative overflow-hidden rounded-2xl ${card.bg} border ${card.border} p-6`}
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="h-10 w-24 rounded-xl bg-gradient-to-r from-surface-700 via-surface-600 to-surface-700 animate-pulse mb-3" />
+                  <div className="h-3 w-32 rounded-lg bg-gradient-to-r from-surface-700 via-surface-600 to-surface-700 animate-pulse" />
+                </div>
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-surface-700 via-surface-600 to-surface-700 animate-pulse" />
+              </div>
+              <div className="mt-4 h-1 w-full rounded-full bg-white/5 overflow-hidden">
+                <div className="h-full w-1/3 rounded-full bg-gradient-to-r from-surface-600 to-surface-700 animate-pulse" />
+              </div>
+            </div>
           ))}
         </div>
-        <div className="skeleton h-64 rounded-2xl mt-8" />
+
+        {/* Alert Section Skeleton */}
+        <div className="rounded-2xl border border-red-500/10 bg-red-500/[0.02] overflow-hidden animate-pulse">
+          <div className="px-6 py-5 border-b border-white/5 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-red-500/20 to-red-500/10" />
+            <div className="flex-1">
+              <div className="h-4 w-40 rounded-lg bg-gradient-to-r from-surface-700 via-surface-600 to-surface-700 mb-2" />
+              <div className="h-3 w-56 rounded-lg bg-gradient-to-r from-surface-700 via-surface-600 to-surface-700" />
+            </div>
+          </div>
+          <div className="p-6 space-y-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="grid grid-cols-3 gap-6">
+                <div className="h-4 rounded-lg bg-gradient-to-r from-surface-700 via-surface-600 to-surface-700" />
+                <div className="h-4 rounded-lg bg-gradient-to-r from-surface-700 via-surface-600 to-surface-700" />
+                <div className="h-4 rounded-lg bg-gradient-to-r from-surface-700 via-surface-600 to-surface-700" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Loading Message */}
+        <div className="flex items-center justify-center gap-3 mt-8 pt-4 border-t border-white/5">
+          <div className="flex gap-1">
+            <div className="w-2 h-2 rounded-full bg-blue-400 animate-bounce" />
+            <div className="w-2 h-2 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: '0.1s' }} />
+            <div className="w-2 h-2 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: '0.2s' }} />
+          </div>
+          <p className="text-gray-400 text-sm font-medium">Loading dashboard data from Render...</p>
+        </div>
       </div>
     )
   }
@@ -45,7 +97,7 @@ export default function Dashboard() {
   ]
 
   return (
-    <div>
+    <div className="animate-in fade-in duration-500">
       <div className="mb-10">
         <h1 className="text-4xl font-bold text-white tracking-tight">Dashboard</h1>
         <p className="text-gray-500 mt-2 text-sm">Real-time overview of your inventory operations</p>
@@ -55,7 +107,7 @@ export default function Dashboard() {
         {cards.map((card) => {
           const Icon = card.icon
           return (
-            <div key={card.label} className={`${card.glow} relative overflow-hidden rounded-2xl ${card.bg} border ${card.border} p-6 group hover:scale-[1.02] transition-all duration-300`}>
+            <div key={card.label} className={`${card.glow} relative overflow-hidden rounded-2xl ${card.bg} border ${card.border} p-6 group hover:scale-[1.02] transition-all duration-300 animate-in fade-in slide-in-from-bottom-4`}>
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-4xl font-bold text-white tracking-tight mb-1">{card.value}</p>
@@ -74,7 +126,7 @@ export default function Dashboard() {
       </div>
 
       {data.low_stock_products.length > 0 && (
-        <div className="rounded-2xl border border-red-500/10 bg-red-500/[0.02] overflow-hidden">
+        <div className="rounded-2xl border border-red-500/10 bg-red-500/[0.02] overflow-hidden animate-in fade-in slide-in-from-bottom-4">
           <div className="px-6 py-5 border-b border-white/5 flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center text-red-400">
               <AlertIcon />
@@ -115,7 +167,7 @@ export default function Dashboard() {
       )}
 
       {data.total_products > 0 && data.low_stock_products.length === 0 && (
-        <div className="rounded-2xl border border-emerald-500/10 bg-emerald-500/[0.02] p-10 text-center">
+        <div className="rounded-2xl border border-emerald-500/10 bg-emerald-500/[0.02] p-10 text-center animate-in fade-in slide-in-from-bottom-4">
           <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 mx-auto mb-4">
             <CheckCircleIcon />
           </div>
@@ -125,7 +177,7 @@ export default function Dashboard() {
       )}
 
       {data.total_products === 0 && (
-        <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-10 text-center">
+        <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-10 text-center animate-in fade-in slide-in-from-bottom-4">
           <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-gray-500 mx-auto mb-4">
             <BoxIcon />
           </div>

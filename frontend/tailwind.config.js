@@ -21,7 +21,16 @@ export default {
           900: '#0f172a',
           950: '#020617',
         }
-      }
+      },
+      animation: {
+        fadeOut: 'fadeOut 0.8s ease-in-out 2s forwards',
+      },
+      keyframes: {
+        fadeOut: {
+          '0%': { opacity: '1', visibility: 'visible' },
+          '100%': { opacity: '0', visibility: 'hidden' },
+        },
+      },
     },
   },
   plugins: [],
